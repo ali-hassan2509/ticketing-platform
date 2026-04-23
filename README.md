@@ -96,9 +96,11 @@
 | Git | latest | Version control |
 | 4GB RAM | minimum | Running all services |
 
-### Installation
+---
 
-```bash
+## Installation
+
+
 # 1. Clone the repository
 git clone https://github.com/YOUR_USERNAME/ticketing-platform.git
 cd ticketing-platform
@@ -129,16 +131,18 @@ Email	admin@ticketpro.com...
 Password	admin123....
 Admin URL	http://localhost/admin/login
 
-### 📦 Services
+---
+## 📦 Services
 
-Service	URL	Description
-🎨 Frontend	http://localhost	React application with Tailwind CSS
-🔧 Backend API	http://localhost:8000/docs	FastAPI interactive documentation
-📊 Kafka UI	http://localhost:8080	Monitor topics and messages
-🐘 PostgreSQL	localhost:5432	Primary database
-⚡ Redis	localhost:6379	Lock cache
-📨 Kafka	localhost:9092	Message broker
+Service	|URL |Description
+🎨 Frontend|	http://localhost	|React application with Tailwind CSS
+🔧 Backend API |	http://localhost:8000/docs	| FastAPI interactive documentation
+📊 Kafka UI	 | http://localhost:8080	| Monitor topics and messages
+🐘 PostgreSQL |	localhost:5432	| Primary database
+⚡ Redis	| localhost:6379	| Lock cache
+📨 Kafka|	localhost:9092	|Message broker
 
+---
 
 ## 🔌 WebSocket API
 Connection
@@ -203,38 +207,44 @@ Client → Server
 // Keepalive ping (send every 25 seconds)
 { type: 'ping' }
 
+---
 
 ## 📡 REST API
 
-Authentication
+## Authentication
 
-Method	Endpoint	Auth	Description
-GET	/auth/google/login	❌	Redirect to Google OAuth consent screen
-GET	/auth/me	✅	Get current authenticated user
+Method |	Endpoint	|Auth	 |Description
+GET	   | /auth/google/login|	❌	|Redirect to Google OAuth consent screen
+GET	| /auth/me	| ✅	|Get current authenticated user
+---
 
-Events
+## Events
 
-Method	Endpoint	Auth	Description
-GET	/api/events	❌	List all events
-GET	/api/events/{id}	❌	Get event details
-GET	/api/events/{id}/seats	✅	Get seat map with lock status
+Method	| Endpoint |	Auth	| Description
+GET	 | /api/events	|❌	| List all events
+GET	| /api/events/{id} |	❌	|Get event details
+GET	| /api/events/{id}/seats	| ✅	|Get seat map with lock status
 
-Seat Management
+---
 
-
-Method	Endpoint	Auth	Description
-POST	/api/events/{id}/seats/lock	✅	Lock a seat
-POST	/api/events/{id}/seats/release	✅	Release your lock
-GET	/api/me/locks	✅	Get your active locks
-
-Admin
+## Seat Management
 
 
-Method	Endpoint	Auth	Description
-POST	/api/admin/login	❌	Admin authentication
-POST	/api/admin/events	✅ (Admin)	Create event with seat generation
+Method |	Endpoint	| Auth	| Description
+POST |	/api/events/{id}/seats/lock |	✅	|Lock a seat
+POST |	/api/events/{id}/seats/release|	✅	|Release your lock
+GET  |	/api/me/locks	|✅	|Get your active locks
 
-Example Request
+---
+
+## Admin
+
+
+Method |	Endpoint	|Auth	| Description
+POST   | /api/admin/login|	❌	| Admin authentication
+POST   | /api/admin/events |	✅ (Admin)	|Create event with seat generation
+
+## Example Request
 
 # Lock a seat
 curl -X POST http://localhost:8000/api/events/1/seats/lock \
@@ -243,7 +253,7 @@ curl -X POST http://localhost:8000/api/events/1/seats/lock \
   -d '{"seat_id": 42}'
 
 
-Example Response
+## Example Response
 
 
 {
@@ -254,23 +264,24 @@ Example Response
   "user_id": 7
 }
 
+---
 
 ## 🎨 Frontend Components
 
-Component	File	Description
-Seat	components/Seat.jsx	Individual seat button with tooltip, status styling, and countdown timer
-CountdownTimer	components/CountdownTimer.jsx	MM:SS display with color progression (green → yellow → orange → red)
-SelectedSeatsSidebar	components/SelectedSeatsSidebar.jsx	Cart sidebar showing selected seats with total price
-Navbar	components/Navbar.jsx	Navigation with user profile, admin link, and sign out
-ConnectionStatus	components/ConnectionStatus.jsx	WebSocket connection indicator with reconnect button
+Component |	File	|Description
+Seat	| components/Seat.jsx	|Individual seat button with tooltip, status styling, and countdown timer
+CountdownTimer| 	components/CountdownTimer.jsx	|MM:SS display with color progression (green → yellow → orange → red)
+SelectedSeatsSidebar |	components/SelectedSeatsSidebar.jsx	| Cart sidebar showing selected seats with total price
+Navbar |	components/Navbar.jsx	| Navigation with user profile, admin link, and sign out
+ConnectionStatus	| components/ConnectionStatus.jsx |	WebSocket connection indicator with reconnect button
 
 
-Custom Hooks
+# Custom Hooks
 
 
-Hook	File	Description
-useWebSocket	hooks/useWebSocket.js	Auto-reconnecting WebSocket with heartbeat and exponential backoff
-useSeatLocking	hooks/useSeatLocking.js	Optimistic seat lock/release with rollback on failure
+Hook |	File	| Description
+useWebSocket	| hooks/useWebSocket.js |	Auto-reconnecting WebSocket with heartbeat and exponential backoff
+useSeatLocking	| hooks/useSeatLocking.js |	Optimistic seat lock/release with rollback on failure
 
 
 ## 🛠️ Development Commands
@@ -302,21 +313,22 @@ docker compose down -v  # Delete all volumes (WARNING: removes all data)
 docker compose ps  # Show running container status
 
 
-🧪 Load Testing
+## 🧪 Load Testing
+
 Run the concurrent seat locking simulation:
 
 docker compose exec backend python load_test.py --users 20 --event 1
 
-What It Tests
+# What It Tests
 
 
-Test	Scenario	Expected Result
-Concurrent Fight	20 users try to lock the SAME seat simultaneously	Only 1 succeeds, 19 receive 409 Conflict
-Spread Locking	Each user locks a DIFFERENT seat	All 20 succeed
-Response Time	Measure average and max response times	< 200ms average
+Test |	Scenario	| Expected Result
+Concurrent Fight |	20 users try to lock the SAME seat simultaneously |	Only 1 succeeds, 19 receive 409 Conflict
+Spread Locking	|Each user locks a DIFFERENT seat	| All 20 succeed
+Response Time	|Measure average and max response times |	< 200ms average
 
 
-Sample Output
+# Sample Output
 
 ============================================================
 Concurrent seat locking test
@@ -393,31 +405,31 @@ ticketing/
 
 
 
-🔒 Security
+## 🔒 Security
 
-Concern	Implementation
-Authentication	Google OAuth 2.0 with JWT (HS256)
-Token Expiry	24 hours (configurable)
-Lock Tokens	UUID v4 (cryptographically random)
-Lock Ownership	Validated on release — users cannot release others' locks
-Race Conditions	PostgreSQL SELECT FOR UPDATE SKIP LOCKED
-CORS	Whitelist restricted to FRONTEND_URL
-Password Hashing	bcrypt for admin accounts
-Environment Variables	.env excluded from version control
+Concern |	Implementation
+Authentication	|Google OAuth 2.0 with JWT (HS256)
+Token Expiry	| 24 hours (configurable)
+Lock Tokens |	UUID v4 (cryptographically random)
+Lock Ownership	| Validated on release — users cannot release others' locks
+Race Conditions	| PostgreSQL SELECT FOR UPDATE SKIP LOCKED
+CORS |	Whitelist restricted to FRONTEND_URL
+Password Hashing | bcrypt for admin accounts
+Environment Variables |	.env excluded from version control
 
 
-📈 Scaling Considerations
+## 📈 Scaling Considerations
 
-Horizontal Scaling Strategies
+# Horizontal Scaling Strategies
 
-Component	Scaling Approach
-Backend (FastAPI)	Stateless — add multiple instances behind load balancer
-WebSocket	Use Redis Pub/Sub for cross-instance broadcast
-Database	Read replicas for seat queries; primary for writes
-Redis	Cluster mode for high availability
-Kafka	Increase partitions for parallel processing
+Component	| Scaling Approach
+Backend (FastAPI) |	Stateless — add multiple instances behind load balancer
+WebSocket	| Use Redis Pub/Sub for cross-instance broadcast
+Database |	Read replicas for seat queries; primary for writes
+Redis	| Cluster mode for high availability
+Kafka	| Increase partitions for parallel processing
 
-Performance Tuning
+## Performance Tuning
 
 
 # Database connection pool
@@ -430,7 +442,7 @@ engine = create_async_engine(
 )
 
 
-📄 License
+## 📄 License
 
 MIT License - see repository for details.
 
