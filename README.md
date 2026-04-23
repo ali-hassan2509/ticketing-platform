@@ -360,58 +360,36 @@ Response times: avg=45ms, max=78ms
 ✅ PASS: Exactly 1 user acquired the lock (user 7)
 ============================================================
 
-
-
 ## 📁 Project Structure
 
-ticketing/
-├── docker-compose.yml          # Multi-container orchestration
-├── .env.example                # Environment variables template
-│
-├── backend/
-│   ├── Dockerfile
-│   ├── requirements.txt        # Python dependencies
-│   ├── seed.py                 # Test data generator
-│   ├── load_test.py            # Concurrent locking test
-│   ├── alembic/                # Database migrations
-│   └── app/
-│       ├── main.py             # FastAPI app entry point
-│       ├── auth.py             # Google OAuth + JWT
-│       ├── seat_service.py     # Core locking logic (SKIP LOCKED)
-│       ├── kafka_producer.py   # Publish seat events
-│       ├── kafka_consumer.py   # Schedule expiry tasks
-│       ├── websocket_manager.py# Event broadcasting
-│       ├── redis_client.py     # Lock cache with TTL
-│       ├── models.py           # SQLAlchemy ORM models
-│       ├── schemas.py          # Pydantic schemas
-│       └── database.py         # Async DB setup
-│
-└── frontend/
-    ├── Dockerfile
-    ├── nginx.conf              # Reverse proxy config
-    ├── package.json
-    ├── tailwind.config.js
-    └── src/
-        ├── App.jsx             # Routing, auth state
-        ├── services/api.js     # Axios + JWT interceptors
-        ├── store/seatStore.js  # Zustand seat state
-        ├── hooks/
-        │   ├── useWebSocket.js
-        │   └── useSeatLocking.js
-        ├── components/
-        │   ├── Seat.jsx
-        │   ├── CountdownTimer.jsx
-        │   ├── SelectedSeatsSidebar.jsx
-        │   └── Navbar.jsx
-        └── pages/
-            ├── Home.jsx
-            ├── EventSeatMap.jsx
-            ├── Dashboard.jsx
-            ├── Checkout.jsx
-            ├── AdminCreateEvent.jsx
-            └── AdminLogin.jsx
+### Backend Structure
 
+| Path | Description |
+|------|-------------|
+| `backend/app/main.py` | FastAPI application entry point |
+| `backend/app/auth.py` | Google OAuth + JWT authentication |
+| `backend/app/seat_service.py` | Core seat locking logic (SKIP LOCKED) |
+| `backend/app/kafka_producer.py` | Publishes seat events to Kafka |
+| `backend/app/kafka_consumer.py` | Schedules 10-minute lock expiry |
+| `backend/app/websocket_manager.py` | Broadcasts real-time seat updates |
+| `backend/app/redis_client.py` | Lock cache with 10-minute TTL |
+| `backend/app/models.py` | SQLAlchemy database models |
+| `backend/seed.py` | Generates test events and 1000+ seats |
+| `backend/load_test.py` | Concurrent locking simulation |
 
+### Frontend Structure
+
+| Path | Description |
+|------|-------------|
+| `frontend/src/App.jsx` | Routing and authentication state |
+| `frontend/src/store/seatStore.js` | Zustand state for all seats |
+| `frontend/src/hooks/useWebSocket.js` | Auto-reconnecting WebSocket |
+| `frontend/src/hooks/useSeatLocking.js` | Optimistic lock with rollback |
+| `frontend/src/components/Seat.jsx` | Individual seat with timer |
+| `frontend/src/components/CountdownTimer.jsx` | Color-changing countdown |
+| `frontend/src/pages/EventSeatMap.jsx` | Main seat grid view |
+| `frontend/src/pages/Checkout.jsx` | Payment simulation |
+| `frontend/src/services/api.js` | Axios with JWT interceptor |
 
 ## 🔒 Security
 
