@@ -359,7 +359,7 @@ Response times: avg=45ms, max=78ms
 
 ✅ PASS: Exactly 1 user acquired the lock (user 7)
 ============================================================
-
+---
 ## 📁 Project Structure
 
 ### Backend Structure
