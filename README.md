@@ -360,36 +360,7 @@ Response times: avg=45ms, max=78ms
 ✅ PASS: Exactly 1 user acquired the lock (user 7)
 ============================================================
 ---
-## 📁 Project Structure
 
-### Backend Structure
-
-| Path | Description |
-|------|-------------|
-| `backend/app/main.py` | FastAPI application entry point |
-| `backend/app/auth.py` | Google OAuth + JWT authentication |
-| `backend/app/seat_service.py` | Core seat locking logic (SKIP LOCKED) |
-| `backend/app/kafka_producer.py` | Publishes seat events to Kafka |
-| `backend/app/kafka_consumer.py` | Schedules 10-minute lock expiry |
-| `backend/app/websocket_manager.py` | Broadcasts real-time seat updates |
-| `backend/app/redis_client.py` | Lock cache with 10-minute TTL |
-| `backend/app/models.py` | SQLAlchemy database models |
-| `backend/seed.py` | Generates test events and 1000+ seats |
-| `backend/load_test.py` | Concurrent locking simulation |
-
-### Frontend Structure
-
-| Path | Description |
-|------|-------------|
-| `frontend/src/App.jsx` | Routing and authentication state |
-| `frontend/src/store/seatStore.js` | Zustand state for all seats |
-| `frontend/src/hooks/useWebSocket.js` | Auto-reconnecting WebSocket |
-| `frontend/src/hooks/useSeatLocking.js` | Optimistic lock with rollback |
-| `frontend/src/components/Seat.jsx` | Individual seat with timer |
-| `frontend/src/components/CountdownTimer.jsx` | Color-changing countdown |
-| `frontend/src/pages/EventSeatMap.jsx` | Main seat grid view |
-| `frontend/src/pages/Checkout.jsx` | Payment simulation |
-| `frontend/src/services/api.js` | Axios with JWT interceptor |
 
 ## 🔒 Security
 
@@ -434,3 +405,82 @@ engine = create_async_engine(
 MIT License - see repository for details.
 
 <div align="center"> <p>Built with ❤️ by the TicketPro Team</p> <p> <a href="https://github.com/YOUR_USERNAME/ticketing-platform/issues">Report Bug</a> • <a href="https://github.com/YOUR_USERNAME/ticketing-platform/issues">Request Feature</a> </p> </div> ```
+
+
+
+## 📁 Project Structure
+
+```bash
+ticketing/
+├── docker-compose.yml          # Multi-container orchestration
+├── .env.example                # Environment variables template
+├── Makefile                    # Development shortcuts
+│
+├── backend/
+│   ├── Dockerfile              # Backend container config
+│   ├── requirements.txt        # Python dependencies
+│   ├── seed.py                 # Test data generator (1000 seats)
+│   ├── load_test.py            # Concurrent locking test
+│   ├── alembic.ini             # Migration config
+│   ├── alembic/                # Database migrations
+│   │   ├── env.py
+│   │   └── versions/
+│   │       └── 001_initial_migration.py
+│   │
+│   └── app/
+│       ├── __init__.py
+│       ├── main.py             # FastAPI app entry point
+│       ├── auth.py             # Google OAuth + JWT
+│       ├── database.py         # Async DB setup
+│       ├── models.py           # SQLAlchemy ORM models
+│       ├── schemas.py          # Pydantic schemas
+│       ├── seat_service.py     # Core locking (SKIP LOCKED)
+│       ├── kafka_producer.py   # Publish seat events
+│       ├── kafka_consumer.py   # Schedule expiry tasks
+│       ├── websocket_manager.py # Event broadcasting
+│       ├── redis_client.py     # Lock cache with TTL
+│       ├── admin.py            # Admin endpoints
+│       └── checkout.py         # Payment simulation
+│
+└── frontend/
+    ├── Dockerfile              # Frontend container config
+    ├── nginx.conf              # Reverse proxy config
+    ├── package.json            # Node dependencies
+    ├── vite.config.js          # Vite build config
+    ├── tailwind.config.js      # Tailwind CSS config
+    ├── postcss.config.js       # PostCSS config
+    ├── index.html              # Entry HTML file
+    │
+    └── src/
+        ├── App.jsx             # Routing, auth state
+        ├── main.jsx            # React entry point
+        │
+        ├── services/
+        │   └── api.js          # Axios + JWT interceptors
+        │
+        ├── store/
+        │   └── seatStore.js    # Zustand seat state
+        │
+        ├── hooks/
+        │   ├── useWebSocket.js # Auto-reconnecting WS
+        │   └── useSeatLocking.js # Optimistic lock/release
+        │
+        ├── components/
+        │   ├── Seat.jsx        # Seat button + tooltip
+        │   ├── CountdownTimer.jsx # MM:SS with colors
+        │   ├── SelectedSeatsSidebar.jsx # Cart sidebar
+        │   ├── Navbar.jsx      # Navigation + user menu
+        │   └── ConnectionStatus.jsx # WS indicator
+        │
+        ├── pages/
+        │   ├── Home.jsx        # Events listing
+        │   ├── EventSeatMap.jsx # Seat grid + WebSocket
+        │   ├── Dashboard.jsx   # User's active locks
+        │   ├── Checkout.jsx    # Payment simulation
+        │   ├── Success.jsx     # Post-payment confirmation
+        │   ├── AuthCallback.jsx # OAuth redirect handler
+        │   ├── AdminLogin.jsx  # Admin authentication
+        │   └── AdminCreateEvent.jsx # Event creation
+        │
+        └── styles/
+            └── index.css       # Tailwind + custom seat styles
