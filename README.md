@@ -134,13 +134,14 @@ Admin URL	http://localhost/admin/login
 ---
 ## 📦 Services
 
-Service	|URL |Description
-🎨 Frontend|	http://localhost	|React application with Tailwind CSS
-🔧 Backend API |	http://localhost:8000/docs	| FastAPI interactive documentation
-📊 Kafka UI	 | http://localhost:8080	| Monitor topics and messages
-🐘 PostgreSQL |	localhost:5432	| Primary database
-⚡ Redis	| localhost:6379	| Lock cache
-📨 Kafka|	localhost:9092	|Message broker
+|Service	|URL |Description|
+|-----------|----|-----------|
+|🎨 Frontend|	http://localhost	|React application with Tailwind CSS|
+|🔧 Backend API |	http://localhost:8000/docs	| FastAPI interactive documentation|
+|📊 Kafka UI	 | http://localhost:8080	| Monitor topics and messages|
+|🐘 PostgreSQL |	localhost:5432	| Primary database|
+|⚡ Redis	| localhost:6379	| Lock cache|
+|📨 Kafka|	localhost:9092	|Message broker|
 
 ---
 
@@ -213,36 +214,41 @@ Client → Server
 
 ## Authentication
 
-Method |	Endpoint	|Auth	 |Description
-GET	   | /auth/google/login|	❌	|Redirect to Google OAuth consent screen
-GET	| /auth/me	| ✅	|Get current authenticated user
+|Method |	Endpoint	|Auth	 |Description|
+|-------|---------------|--------|-----------|
+|GET	   | /auth/google/login|	❌	|Redirect to Google OAuth consent screen|
+|GET	| /auth/me	| ✅	|Get current authenticated user|
 ---
 
 ## Events
 
-Method	| Endpoint |	Auth	| Description
-GET	 | /api/events	|❌	| List all events
-GET	| /api/events/{id} |	❌	|Get event details
-GET	| /api/events/{id}/seats	| ✅	|Get seat map with lock status
+|Method	| Endpoint |	Auth	| Description|
+|-------|----------|------------|------------|
+|GET	 | /api/events	|❌	| List all events|
+|GET	| /api/events/{id} |	❌	|Get event details|
+|GET	| /api/events/{id}/seats	| ✅	|Get seat map with lock status|
 
 ---
 
 ## Seat Management
 
 
-Method |	Endpoint	| Auth	| Description
-POST |	/api/events/{id}/seats/lock |	✅	|Lock a seat
-POST |	/api/events/{id}/seats/release|	✅	|Release your lock
-GET  |	/api/me/locks	|✅	|Get your active locks
+|Method |	Endpoint	| Auth	| Description|
+|-------|---------------|-------|------------|
+|POST |	/api/events/{id}/seats/lock |	✅	|Lock a seat|
+|POST |	/api/events/{id}/seats/release|	✅	|Release your lock|
+|GET  |	/api/me/locks	|✅	|Get your active locks|
 
 ---
 
 ## Admin
 
 
-Method |	Endpoint	|Auth	| Description
-POST   | /api/admin/login|	❌	| Admin authentication
-POST   | /api/admin/events |	✅ (Admin)	|Create event with seat generation
+|Method |	Endpoint	|Auth	| Description|
+|-------|---------------|-------|------------|
+
+|POST   | /api/admin/login|	❌	| Admin authentication|
+|POST   | /api/admin/events |	✅ (Admin)	|Create event with seat generation|
 
 ## Example Request
 
@@ -268,20 +274,22 @@ curl -X POST http://localhost:8000/api/events/1/seats/lock \
 
 ## 🎨 Frontend Components
 
-Component |	File	|Description
-Seat	| components/Seat.jsx	|Individual seat button with tooltip, status styling, and countdown timer
-CountdownTimer| 	components/CountdownTimer.jsx	|MM:SS display with color progression (green → yellow → orange → red)
-SelectedSeatsSidebar |	components/SelectedSeatsSidebar.jsx	| Cart sidebar showing selected seats with total price
-Navbar |	components/Navbar.jsx	| Navigation with user profile, admin link, and sign out
-ConnectionStatus	| components/ConnectionStatus.jsx |	WebSocket connection indicator with reconnect button
+|Component |	File	|Description|
+|----------|------------|-----------|
+|Seat	| components/Seat.jsx	|Individual seat button with tooltip, status styling, and countdown timer |
+|CountdownTimer| 	components/CountdownTimer.jsx	|MM:SS display with color progression (green → yellow → orange → red)|
+|SelectedSeatsSidebar |	components/SelectedSeatsSidebar.jsx	| Cart sidebar showing selected seats with total price|
+|Navbar |	components/Navbar.jsx	| Navigation with user profile, admin link, and sign out|
+|ConnectionStatus	| components/ConnectionStatus.jsx |	WebSocket connection indicator with reconnect button|
 
 
 # Custom Hooks
 
 
-Hook |	File	| Description
-useWebSocket	| hooks/useWebSocket.js |	Auto-reconnecting WebSocket with heartbeat and exponential backoff
-useSeatLocking	| hooks/useSeatLocking.js |	Optimistic seat lock/release with rollback on failure
+|Hook |	File	| Description|
+|-----|---------|------------|
+|useWebSocket	| hooks/useWebSocket.js |	Auto-reconnecting WebSocket with heartbeat and exponential backoff|
+|useSeatLocking	| hooks/useSeatLocking.js |	Optimistic seat lock/release with rollback on failure|
 
 
 ## 🛠️ Development Commands
@@ -322,10 +330,10 @@ docker compose exec backend python load_test.py --users 20 --event 1
 # What It Tests
 
 
-Test |	Scenario	| Expected Result
-Concurrent Fight |	20 users try to lock the SAME seat simultaneously |	Only 1 succeeds, 19 receive 409 Conflict
-Spread Locking	|Each user locks a DIFFERENT seat	| All 20 succeed
-Response Time	|Measure average and max response times |	< 200ms average
+|Test |	Scenario	| Expected Result|
+|Concurrent Fight |	20 users try to lock the SAME seat simultaneously |	Only 1 succeeds, 19 receive 409 Conflict|
+|Spread Locking	|Each user locks a DIFFERENT seat	| All 20 succeed|
+|Response Time	|Measure average and max response times |	< 200ms average|
 
 
 # Sample Output
@@ -407,27 +415,28 @@ ticketing/
 
 ## 🔒 Security
 
-Concern |	Implementation
-Authentication	|Google OAuth 2.0 with JWT (HS256)
-Token Expiry	| 24 hours (configurable)
-Lock Tokens |	UUID v4 (cryptographically random)
-Lock Ownership	| Validated on release — users cannot release others' locks
-Race Conditions	| PostgreSQL SELECT FOR UPDATE SKIP LOCKED
-CORS |	Whitelist restricted to FRONTEND_URL
-Password Hashing | bcrypt for admin accounts
-Environment Variables |	.env excluded from version control
+|Concern |	Implementation|
+|--------|----------------|
+|Authentication	|Google OAuth 2.0 with JWT (HS256)|
+|Token Expiry	| 24 hours (configurable)|
+|Lock Tokens |	UUID v4 (cryptographically random)|
+|Lock Ownership	| Validated on release — users cannot release others' locks|
+|Race Conditions	| PostgreSQL SELECT FOR UPDATE SKIP LOCKED|
+|CORS |	Whitelist restricted to FRONTEND_URL|
+|Password Hashing | bcrypt for admin accounts|
+|Environment Variables |	.env excluded from version control|
 
 
 ## 📈 Scaling Considerations
 
 # Horizontal Scaling Strategies
 
-Component	| Scaling Approach
-Backend (FastAPI) |	Stateless — add multiple instances behind load balancer
-WebSocket	| Use Redis Pub/Sub for cross-instance broadcast
-Database |	Read replicas for seat queries; primary for writes
-Redis	| Cluster mode for high availability
-Kafka	| Increase partitions for parallel processing
+|Component| Scaling Approach|
+|Backend (FastAPI)|	Stateless — add multiple instances behind load balancer|
+|WebSocket| Use Redis Pub/Sub for cross-instance broadcast|
+|Database|	Read replicas for seat queries; primary for writes|
+|Redis| Cluster mode for high availability|
+|Kafka| Increase partitions for parallel processing|
 
 ## Performance Tuning
 
