@@ -34,123 +34,419 @@
 - [📁 Project Structure](#-project-structure)
 - [🔒 Security](#-security)
 - [📈 Scaling Considerations](#-scaling-considerations)
-- [🤝 Contributing](#-contributing)
-- [📄 License](#-license)
 
 ---
 
 ## ✨ Features
 
-<table>
-  <tr>
-    <td width="50%">
-      <h3>🎯 Real-time Seat Map</h3>
-      <p>WebSocket connections per event with live seat status updates across all connected clients.</p>
-    </td>
-    <td width="50%">
-      <h3>⏱️ 10-Minute Temporary Locks</h3>
-      <p>Kafka-scheduled tasks with automatic expiry — seats release automatically when timer runs out.</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <h3>⚡ Race Condition Prevention</h3>
-      <p>PostgreSQL <code>SELECT FOR UPDATE SKIP LOCKED</code> ensures only one user can lock a seat at a time.</p>
-    </td>
-    <td>
-      <h3>🚀 Redis Cache Layer</h3>
-      <p>Fast seat availability checks with TTL-based lock caching, reducing database load.</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <h3>🔐 Google OAuth 2.0</h3>
-      <p>Secure authentication with JWT tokens (24-hour expiry) and automatic user profile sync.</p>
-    </td>
-    <td>
-      <h3>👑 Admin Dashboard</h3>
-      <p>Dynamic event creation with configurable pricing tiers and automatic seat generation.</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <h3>📱 Responsive Seat Grid</h3>
-      <p>Support for 1000+ seats with tooltips, visual status indicators, and animated countdown timers.</p>
-    </td>
-    <td>
-      <h3>🧪 Load Testing Suite</h3>
-      <p>Built-in concurrent locking simulation to validate race condition handling.</p>
-    </td>
-  </tr>
-</table>
+| Feature | Description |
+|---------|-------------|
+| 🎯 **Real-time Seat Map** | WebSocket connections per event with live seat status updates across all connected clients |
+| ⏱️ **10-Minute Temporary Locks** | Kafka-scheduled tasks with automatic expiry — seats release automatically when timer runs out |
+| ⚡ **Race Condition Prevention** | PostgreSQL `SELECT FOR UPDATE SKIP LOCKED` ensures only one user can lock a seat at a time |
+| 🚀 **Redis Cache Layer** | Fast seat availability checks with TTL-based lock caching, reducing database load |
+| 🔐 **Google OAuth 2.0** | Secure authentication with JWT tokens (24-hour expiry) and automatic user profile sync |
+| 👑 **Admin Dashboard** | Dynamic event creation with configurable pricing tiers and automatic seat generation |
+| 📱 **Responsive Seat Grid** | Support for 1000+ seats with tooltips, visual status indicators, and animated countdown timers |
+| 🧪 **Load Testing Suite** | Built-in concurrent locking simulation to validate race condition handling |
 
 ---
 
 ## 🏗️ Architecture
 
-```mermaid
-graph TB
-    subgraph Client["🖥️ Client Layer"]
-        React["React + Vite<br/>Zustand State"]
-    end
-    
-    subgraph Gateway["🌐 Gateway Layer"]
-        Nginx["Nginx<br/>Reverse Proxy"]
-    end
-    
-    subgraph Backend["⚙️ Backend Layer"]
-        FastAPI["FastAPI<br/>Async Endpoints"]
-        WS["WebSocket Manager<br/>Event Broadcasting"]
-        Auth["JWT Auth<br/>Google OAuth"]
-    end
-    
-    subgraph Services["🗄️ Services Layer"]
-        PG[("PostgreSQL 15<br/>SKIP LOCKED")]
-        Redis[("Redis 7<br/>Lock Cache")]
-        Kafka["Kafka<br/>Message Queue"]
-    end
-    
-    subgraph Processing["🔄 Processing Layer"]
-        Consumer["Kafka Consumer<br/>Expiry Scheduler"]
-    end
-    
-    React -->|REST/WS| Nginx
-    Nginx --> FastAPI
-    Nginx --> WS
-    FastAPI --> Auth
-    FastAPI --> PG
-    FastAPI --> Redis
-    FastAPI -->|publish| Kafka
-    Kafka --> Consumer
-    Consumer -->|expire| PG
-    Consumer -->|broadcast| WS
-    WS -->|updates| React
-    
-    style Client fill:#1a1a2e,stroke:#16213e,color:#fff
-    style Gateway fill:#16213e,stroke:#0f3460,color:#fff
-    style Backend fill:#0f3460,stroke:#e94560,color:#fff
-    style Services fill:#533483,stroke:#e94560,color:#fff
-    style Processing fill:#e94560,stroke:#533483,color:#fff
+### System Components
+
+| Layer | Technology | Purpose |
+|-------|------------|---------|
+| **Client** | React + Vite + Zustand | UI rendering, state management, WebSocket client |
+| **Gateway** | Nginx | Reverse proxy, static file serving, API routing |
+| **Backend** | FastAPI (Async) | REST endpoints, WebSocket server, business logic |
+| **Database** | PostgreSQL 15 | Persistent storage with SKIP LOCKED for race prevention |
+| **Cache** | Redis 7 | In-memory lock cache with TTL |
+| **Message Queue** | Apache Kafka | Event streaming, lock expiry scheduling |
+| **Consumer** | Kafka Consumer | Async lock timeout processing |
+
+### Data Flow: Seat Locking
+
+1.User clicks seat → Frontend optimistic update
+
+2.POST /api/events/{id}/seats/lock
+
+3.Backend: SELECT FOR UPDATE SKIP LOCKED
+ ├─ Success → Insert lock, update Redis cache
+ └─ Conflict → Return 409, frontend rolls back
+
+4.Kafka message published → Consumer schedules asyncio.sleep(600s)
+
+5.WebSocket broadcast → All clients see locked seat
+
+6.After 10 minutes → Kafka consumer expires lock → WS broadcast
+
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+| Requirement | Version | Purpose |
+|-------------|---------|---------|
+| Docker & Compose | v2+ | Container orchestration |
+| Google OAuth Credentials | - | Authentication |
+| Git | latest | Version control |
+| 4GB RAM | minimum | Running all services |
+
+### Installation
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/YOUR_USERNAME/ticketing-platform.git
+cd ticketing-platform
+
+# 2. Configure environment variables
+cp .env.example .env
+# Edit .env and add your Google OAuth credentials
+
+# 3. Start all services
+docker compose up --build -d
+
+# 4. Wait for services to initialize (approx. 30 seconds)
+
+# 5. Run database migrations
+docker compose exec backend alembic upgrade head
+
+# 6. Seed test data (Taylor Swift concert with 1000 seats)
+docker compose exec backend python seed.py
+
+# 7. Open the application
+open http://localhost
+
+Default Admin Account
+After seeding, you can access the admin panel:
+
+Field	Value
+Email	admin@ticketpro.com...
+Password	admin123....
+Admin URL	http://localhost/admin/login
+
+📦 Services
+
+Service	URL	Description
+🎨 Frontend	http://localhost	React application with Tailwind CSS
+🔧 Backend API	http://localhost:8000/docs	FastAPI interactive documentation
+📊 Kafka UI	http://localhost:8080	Monitor topics and messages
+🐘 PostgreSQL	localhost:5432	Primary database
+⚡ Redis	localhost:6379	Lock cache
+📨 Kafka	localhost:9092	Message broker
+
+
+🔌 WebSocket API
+Connection
+
+const ws = new WebSocket(`ws://localhost:8000/ws/${eventId}?token=${jwt}`);
+
+Server → Client Messages
+
+// Initial state on connection
+{
+  type: 'initial_state',
+  seats: [
+    {
+      id: 1,
+      row: 'A',
+      number: 12,
+      price: 250.00,
+      status: 'available' | 'locked' | 'booked',
+      lock: {
+        lock_token: 'uuid',
+        user_id: 42,
+        expires_at: '2024-01-15T10:30:00Z',
+        locked_by_me: true
+      }
+    }
+  ],
+  user_locks: [{ seat_id: 1, lock_token: 'uuid' }]
+}
+
+// Seat locked by someone
+{
+  type: 'seat_locked',
+  seat_id: 42,
+  user_id: 7,
+  expires_at: '2024-01-15T10:30:00Z',
+  lock_token: 'uuid-v4'
+}
+
+// Seat released (manual)
+{
+  type: 'seat_released',
+  seat_id: 42,
+  user_id: 7,
+  reason: 'manual'
+}
+
+// Lock expired (automatic)
+{
+  type: 'seat_expired',
+  seat_id: 42,
+  previously_locked_by: 7
+}
+
+// Keepalive heartbeat (every 25 seconds)
+{
+  type: 'heartbeat',
+  timestamp: '2024-01-15T10:20:00Z'
+}
+
+Client → Server
+
+// Keepalive ping (send every 25 seconds)
+{ type: 'ping' }
+
+
+📡 REST API
+
+Authentication
+
+Method	Endpoint	Auth	Description
+GET	/auth/google/login	❌	Redirect to Google OAuth consent screen
+GET	/auth/me	✅	Get current authenticated user
+
+Events
+
+Method	Endpoint	Auth	Description
+GET	/api/events	❌	List all events
+GET	/api/events/{id}	❌	Get event details
+GET	/api/events/{id}/seats	✅	Get seat map with lock status
+
+Seat Management
+
+
+Method	Endpoint	Auth	Description
+POST	/api/events/{id}/seats/lock	✅	Lock a seat
+POST	/api/events/{id}/seats/release	✅	Release your lock
+GET	/api/me/locks	✅	Get your active locks
+
+Admin
+
+
+Method	Endpoint	Auth	Description
+POST	/api/admin/login	❌	Admin authentication
+POST	/api/admin/events	✅ (Admin)	Create event with seat generation
+
+Example Request
+
+# Lock a seat
+curl -X POST http://localhost:8000/api/events/1/seats/lock \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"seat_id": 42}'
+
+
+Example Response
+
+
+{
+  "seat_id": 42,
+  "lock_token": "550e8400-e29b-41d4-a716-446655440000",
+  "expires_at": "2024-01-15T10:30:00Z",
+  "locked_at": "2024-01-15T10:20:00Z",
+  "user_id": 7
+}
+
+
+🎨 Frontend Components
+
+Component	File	Description
+Seat	components/Seat.jsx	Individual seat button with tooltip, status styling, and countdown timer
+CountdownTimer	components/CountdownTimer.jsx	MM:SS display with color progression (green → yellow → orange → red)
+SelectedSeatsSidebar	components/SelectedSeatsSidebar.jsx	Cart sidebar showing selected seats with total price
+Navbar	components/Navbar.jsx	Navigation with user profile, admin link, and sign out
+ConnectionStatus	components/ConnectionStatus.jsx	WebSocket connection indicator with reconnect button
+
+
+Custom Hooks
+
+
+Hook	File	Description
+useWebSocket	hooks/useWebSocket.js	Auto-reconnecting WebSocket with heartbeat and exponential backoff
+useSeatLocking	hooks/useSeatLocking.js	Optimistic seat lock/release with rollback on failure
+
+
+🛠️ Development Commands
+
+# Service Management
+docker compose up --build -d    # Start all services
+docker compose down             # Stop all services
+
+# Logging
+docker compose logs -f          # Follow all logs
+docker compose logs -f backend  # Backend logs only
+
+# Database
+docker compose exec backend alembic upgrade head  # Run migrations
+docker compose exec backend python seed.py        # Seed test data
+docker compose exec postgres psql -U ticketing -d ticketing_db  # psql shell
+
+# Backend Development
+docker compose exec backend bash  # Open bash in backend container
+docker compose up -d --build backend  # Rebuild backend after changes
+
+# Testing
+docker compose exec backend python load_test.py --users 20 --event 1  # Load test
+
+# Cleanup
+docker compose down -v  # Delete all volumes (WARNING: removes all data)
+
+# Status
+docker compose ps  # Show running container status
+
+
+🧪 Load Testing
+Run the concurrent seat locking simulation:
+
+docker compose exec backend python load_test.py --users 20 --event 1
+
+What It Tests
+
+
+Test	Scenario	Expected Result
+Concurrent Fight	20 users try to lock the SAME seat simultaneously	Only 1 succeeds, 19 receive 409 Conflict
+Spread Locking	Each user locks a DIFFERENT seat	All 20 succeed
+Response Time	Measure average and max response times	< 200ms average
+
+
+Sample Output
+
+============================================================
+Concurrent seat locking test
+  URL:      http://localhost:8000
+  Event:    1
+  Users:    20
+  Target:   seat 1 (all 20 users fight for it)
+============================================================
+
+Firing 20 concurrent lock requests for seat 1…
+
+────────────────────────────────────────
+Results (completed in 234ms total):
+  ✅ Locked successfully: 1
+  ⚡ Conflicts (409):     19
+  ❌ Errors:              0
+
+Status code breakdown: {200: 1, 409: 19}
+Response times: avg=45ms, max=78ms
+
+✅ PASS: Exactly 1 user acquired the lock (user 7)
+============================================================
+
+
+
+📁 Project Structure
+
+ticketing/
+├── docker-compose.yml          # Multi-container orchestration
+├── .env.example                # Environment variables template
+│
+├── backend/
+│   ├── Dockerfile
+│   ├── requirements.txt        # Python dependencies
+│   ├── seed.py                 # Test data generator
+│   ├── load_test.py            # Concurrent locking test
+│   ├── alembic/                # Database migrations
+│   └── app/
+│       ├── main.py             # FastAPI app entry point
+│       ├── auth.py             # Google OAuth + JWT
+│       ├── seat_service.py     # Core locking logic (SKIP LOCKED)
+│       ├── kafka_producer.py   # Publish seat events
+│       ├── kafka_consumer.py   # Schedule expiry tasks
+│       ├── websocket_manager.py# Event broadcasting
+│       ├── redis_client.py     # Lock cache with TTL
+│       ├── models.py           # SQLAlchemy ORM models
+│       ├── schemas.py          # Pydantic schemas
+│       └── database.py         # Async DB setup
+│
+└── frontend/
+    ├── Dockerfile
+    ├── nginx.conf              # Reverse proxy config
+    ├── package.json
+    ├── tailwind.config.js
+    └── src/
+        ├── App.jsx             # Routing, auth state
+        ├── services/api.js     # Axios + JWT interceptors
+        ├── store/seatStore.js  # Zustand seat state
+        ├── hooks/
+        │   ├── useWebSocket.js
+        │   └── useSeatLocking.js
+        ├── components/
+        │   ├── Seat.jsx
+        │   ├── CountdownTimer.jsx
+        │   ├── SelectedSeatsSidebar.jsx
+        │   └── Navbar.jsx
+        └── pages/
+            ├── Home.jsx
+            ├── EventSeatMap.jsx
+            ├── Dashboard.jsx
+            ├── Checkout.jsx
+            ├── AdminCreateEvent.jsx
+            └── AdminLogin.jsx
+
+
+
+🔒 Security
+
+Concern	Implementation
+Authentication	Google OAuth 2.0 with JWT (HS256)
+Token Expiry	24 hours (configurable)
+Lock Tokens	UUID v4 (cryptographically random)
+Lock Ownership	Validated on release — users cannot release others' locks
+Race Conditions	PostgreSQL SELECT FOR UPDATE SKIP LOCKED
+CORS	Whitelist restricted to FRONTEND_URL
+Password Hashing	bcrypt for admin accounts
+Environment Variables	.env excluded from version control
+
+
+📈 Scaling Considerations
+
+Horizontal Scaling Strategies
+
+Component	Scaling Approach
+Backend (FastAPI)	Stateless — add multiple instances behind load balancer
+WebSocket	Use Redis Pub/Sub for cross-instance broadcast
+Database	Read replicas for seat queries; primary for writes
+Redis	Cluster mode for high availability
+Kafka	Increase partitions for parallel processing
+
+Performance Tuning
+
+
+# Database connection pool
+engine = create_async_engine(
+    DATABASE_URL,
+    pool_size=20,        # Concurrent DB connections
+    max_overflow=40,     # Additional connections under load
+    pool_pre_ping=True,  # Verify connections before using
+    pool_recycle=3600,   # Refresh connections hourly
+)
+
+
+📄 License
+
+MIT License - see repository for details.
+
+<div align="center"> <p>Built with ❤️ by the TicketPro Team</p> <p> <a href="https://github.com/YOUR_USERNAME/ticketing-platform/issues">Report Bug</a> • <a href="https://github.com/YOUR_USERNAME/ticketing-platform/issues">Request Feature</a> </p> </div> ```
 
 
 
 
-Data Flow: Seat Locking
 
-┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐
-│  User    │     │ Frontend │     │ Backend  │     │    DB    │     │  Kafka   │
-│ Clicks   │     │(Optimistic│    │(SKIP     │     │(Row Lock)│     │Consumer  │
-│ Seat     │────▶│ Update)   │────▶│ LOCKED)  │────▶│          │────▶│          │
-└──────────┘     └──────────┘     └──────────┘     └──────────┘     └──────────┘
-                                                                           │
-┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐           │
-│  User    │     │  Other   │     │ WebSocket│     │  Redis   │           │
-│ Sees     │◀────│ Clients  │◀────│ Broadcast│◀────│  Cache   │◀──────────┘
-│ Lock     │     │ Update   │     │          │     │  Set TTL  │    Schedule
-└──────────┘     └──────────┘     └──────────┘     └──────────┘   10min Expiry
-                                                                           │
-┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐           │
-│  Seat    │     │  Kafka   │     │ Backend  │     │  Lock    │           │
-│ Released │◀────│ Consumer │◀────│ Expires  │◀────│ Expires  │◀──────────┘
-│          │     │ (Timer)  │     │ Lock     │     │          │    Trigger
-└──────────┘     └──────────┘     └──────────┘     └──────────┘    Expiry
+
+
+
+
+
+
+
+
+
+
