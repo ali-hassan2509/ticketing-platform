@@ -129,7 +129,7 @@ Email	admin@ticketpro.com...
 Password	admin123....
 Admin URL	http://localhost/admin/login
 
-📦 Services
+### 📦 Services
 
 Service	URL	Description
 🎨 Frontend	http://localhost	React application with Tailwind CSS
@@ -140,7 +140,7 @@ Service	URL	Description
 📨 Kafka	localhost:9092	Message broker
 
 
-🔌 WebSocket API
+## 🔌 WebSocket API
 Connection
 
 const ws = new WebSocket(`ws://localhost:8000/ws/${eventId}?token=${jwt}`);
@@ -204,7 +204,7 @@ Client → Server
 { type: 'ping' }
 
 
-📡 REST API
+## 📡 REST API
 
 Authentication
 
@@ -255,7 +255,7 @@ Example Response
 }
 
 
-🎨 Frontend Components
+## 🎨 Frontend Components
 
 Component	File	Description
 Seat	components/Seat.jsx	Individual seat button with tooltip, status styling, and countdown timer
@@ -273,7 +273,7 @@ useWebSocket	hooks/useWebSocket.js	Auto-reconnecting WebSocket with heartbeat an
 useSeatLocking	hooks/useSeatLocking.js	Optimistic seat lock/release with rollback on failure
 
 
-🛠️ Development Commands
+## 🛠️ Development Commands
 
 # Service Management
 docker compose up --build -d    # Start all services
@@ -342,7 +342,7 @@ Response times: avg=45ms, max=78ms
 
 
 
-📁 Project Structure
+## 📁 Project Structure
 
 ticketing/
 ├── docker-compose.yml          # Multi-container orchestration
@@ -435,18 +435,3 @@ engine = create_async_engine(
 MIT License - see repository for details.
 
 <div align="center"> <p>Built with ❤️ by the TicketPro Team</p> <p> <a href="https://github.com/YOUR_USERNAME/ticketing-platform/issues">Report Bug</a> • <a href="https://github.com/YOUR_USERNAME/ticketing-platform/issues">Request Feature</a> </p> </div> ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
