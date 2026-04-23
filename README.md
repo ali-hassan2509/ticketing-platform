@@ -146,11 +146,12 @@ Admin URL	http://localhost/admin/login
 ---
 
 ## 🔌 WebSocket API
-Connection
+
+# Connection
 
 const ws = new WebSocket(`ws://localhost:8000/ws/${eventId}?token=${jwt}`);
 
-Server → Client Messages
+# Server → Client Messages
 
 // Initial state on connection
 {
@@ -203,7 +204,7 @@ Server → Client Messages
   timestamp: '2024-01-15T10:20:00Z'
 }
 
-Client → Server
+# Client → Server
 
 // Keepalive ping (send every 25 seconds)
 { type: 'ping' }
