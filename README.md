@@ -246,9 +246,8 @@ Client → Server
 
 |Method |	Endpoint	|Auth	| Description|
 |-------|---------------|-------|------------|
-
-|POST   | /api/admin/login|	❌	| Admin authentication|
-|POST   | /api/admin/events |	✅ (Admin)	|Create event with seat generation|
+|POST   |/api/admin/login|	❌  | Admin authentication|
+|POST   |/api/admin/events|✅ |(Admin) Create event with seat generation|
 
 ## Example Request
 
