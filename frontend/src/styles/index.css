@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    @apply bg-gray-950 text-gray-100 antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  /* Seat grid */
+  .seat-grid {
+    display: grid;
+    gap: 6px;
+  }
+
+  /* Individual seat button */
+  .seat-btn {
+    @apply relative flex items-center justify-center rounded-md text-xs font-semibold
+           transition-all duration-200 cursor-pointer select-none
+           focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-gray-900;
+    width: 36px;
+    height: 36px;
+    border: 2px solid transparent;
+  }
+
+  .seat-available {
+    @apply bg-emerald-900/60 border-emerald-500 text-emerald-300 hover:bg-emerald-500 hover:text-white hover:scale-105;
+  }
+
+  .seat-locked {
+    @apply bg-amber-900/60 border-amber-500 text-amber-300 cursor-not-allowed;
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 3px,
+      rgba(245, 158, 11, 0.15) 3px,
+      rgba(245, 158, 11, 0.15) 6px
+    );
+  }
+
+  .seat-locked-mine {
+    @apply bg-violet-900/60 border-violet-400 text-violet-300 hover:border-violet-300 cursor-pointer hover:scale-105;
+  }
+
+  .seat-booked {
+    @apply bg-gray-800/80 border-gray-600 text-gray-500 cursor-not-allowed;
+    background-image: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 3px,
+      rgba(107, 114, 128, 0.15) 3px,
+      rgba(107, 114, 128, 0.15) 6px
+    );
+  }
+
+  .seat-selected {
+    @apply bg-blue-600 border-blue-400 text-white scale-105 shadow-lg shadow-blue-500/30;
+  }
+
+  .seat-loading {
+    @apply bg-gray-700 border-gray-500 text-gray-400 cursor-wait animate-pulse;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { @apply bg-gray-900; }
+::-webkit-scrollbar-thumb { @apply bg-gray-600 rounded-full; }
